@@ -75,7 +75,8 @@ def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2,detect_type): 
             sys.exit('Error in detect_type, should be body or face.');
         xi=int(xi);        yi=int(yi);
         xo=int(xo);        yo=int(yo);
-        p1.append((xi,yi,xo,yo));
+        if xi!=xo and yi!=yo:
+            p1.append((xi,yi,xo,yo));
     
     p2=[];
     for annot in annotation2: 
@@ -87,11 +88,12 @@ def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2,detect_type): 
             sys.exit('Error in detect_type, should be body or face.');
         xi=int(xi);        yi=int(yi);
         xo=int(xo);        yo=int(yo);
-        p2.append((xi,yi,xo,yo));
+        if xi!=xo and yi!=yo:
+            p2.append((xi,yi,xo,yo));
     
-    if len(annotation1)==0 and len(annotation2)==0:
+    if len(p1)==0 and len(p2)==0:
         return 0;
-    if len(annotation1)==0 or len(annotation2)==0:
+    if len(p1)==0 or  len(p2)==0:
         return 255;
         
     iou_matrix = liou.create_iou_matrix(p1,p2);
