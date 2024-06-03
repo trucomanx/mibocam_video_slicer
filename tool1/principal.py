@@ -77,9 +77,9 @@ def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2): # predictor,
         p2.append((xi,yi,xo,yo));
     
     if len(annotation1)==0 and len(annotation2)==0:
-        return 0,None,None;
+        return 0;
     if len(annotation1)==0 or len(annotation2)==0:
-        return 255,None,None;
+        return 255;
         
     iou_matrix = liou.create_iou_matrix(p1,p2);
     correspondences, ious = liou.find_correspondences(iou_matrix);
@@ -175,7 +175,7 @@ def save_images(input_filename,
                                         pil_old_frame,
                                         annotation_current,
                                         annotation_old ); 
-                
+                #print(rmse,threshold);
                 if rmse>threshold:
                     if my_pil_func(output_dir,new_filename, pil_current_frame,annotation_current):
                         pil_old_frame=pil_current_frame.copy();
