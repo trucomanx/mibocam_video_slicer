@@ -36,7 +36,11 @@ def calculate_iou(box1, box2):
     iou = inter_area / union_area if union_area != 0 else 0
     return iou;
 
+
 def create_iou_matrix(boxes1, boxes2):
+    '''
+    boxes1 in rows, boxes2 in columns
+    '''
     iou_matrix = []
     for box1 in boxes1:
         row = []

@@ -11,6 +11,7 @@ THRESHOLD=2.5;
 START_COUNT=1;
 FORMAT_FILENAME="{VNAME}/{FRAME}.png"; ## {COUNT}, {FRAME}, {VNAME}
 DETECT_TYPE="body";
+VERBOSE=False;
 
 #import torch
 #torch.cuda.empty_cache();
@@ -31,7 +32,9 @@ for n in range(len(sys.argv)):
         START_COUNT=int(sys.argv[n+1]);
     elif sys.argv[n]=='--detect-type':
         DETECT_TYPE=sys.argv[n+1];
-
+    elif sys.argv[n]=='--verbose':
+        VERBOSE=(sys.argv[n+1].lower()=='true');
+        
 ################################################################################
 from pytictoc import TicToc
 t = TicToc()
@@ -96,8 +99,11 @@ def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2,detect_type): 
     if len(p1)==0 or  len(p2)==0:
         return 255;
         
-    iou_matrix = liou.create_iou_matrix(p1,p2);
-    correspondences, ious = liou.find_correspondences(iou_matrix);
+    iou_matrix = liou.create_iou_matrix(p1,p2); # p1 in rows, p2 in columns
+    # len(p1)==len(correspondences)==len(ious) # 
+    correspondences, ious = liou.find_correspondences(iou_matrix,min_iou=0.05);
+    
+    #print(iou_matrix, correspondences, ious ) 
     
     rmse=[];
     for i in range(len(correspondences)):
@@ -111,7 +117,10 @@ def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2,detect_type): 
             roi2 = pil_img2.crop(ubox);
             rmse.append(calculate_rmse_from_pil_roi(roi1,roi2));
         else:
+            #print('passei por aqui')
             rmse.append(calculate_rmse_from_pil_roi(pil_img1,pil_img2));
+            #pil_img1.save('e1.png')
+            #pil_img2.save('e2.png')
     
     return max(rmse);
 
@@ -246,7 +255,7 @@ if __name__ == "__main__":
                     format_filename=FORMAT_FILENAME,
                     my_pil_func=lsd.func_default_save2,
                     start_count=START_COUNT,
-                    verbose=False,
+                    verbose=VERBOSE,
                     detect_type=DETECT_TYPE);
         tg.toc(filename+' elapsed:');
         l=l+1;
