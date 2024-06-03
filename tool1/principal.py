@@ -10,6 +10,7 @@ OUTPUT_DIR='slices';
 THRESHOLD=2.5;
 START_COUNT=1;
 FORMAT_FILENAME="{VNAME}/{FRAME}.png"; ## {COUNT}, {FRAME}, {VNAME}
+DETECT_TYPE="body";
 
 #import torch
 #torch.cuda.empty_cache();
@@ -28,6 +29,8 @@ for n in range(len(sys.argv)):
         THRESHOLD=float(sys.argv[n+1]);
     elif sys.argv[n]=='--start-count':
         START_COUNT=int(sys.argv[n+1]);
+    elif sys.argv[n]=='--detect-type':
+        DETECT_TYPE=sys.argv[n+1];
 
 ################################################################################
 from pytictoc import TicToc
@@ -61,17 +64,27 @@ def calculate_rmse_from_pil_roi(image1, image2):
     
     return rmse
 
-def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2): # predictor, numpy, numpy
+def get_rmse_of_people(pil_img1, pil_img2,annotation1,annotation2,detect_type): # predictor, numpy, numpy
     p1=[];
     for annot in annotation1: 
-        (xi,yi,xo,yo)=oppgd.get_body_bounding_rectangle(annot.data,factor=1.0);
+        if detect_type=='body':
+            (xi,yi,xo,yo)=oppgd.get_body_bounding_rectangle(annot.data,factor=1.0);
+        elif detect_type=='face':
+            (xi,yi,xo,yo)=oppgd.get_face_bounding_rectangle(annot.data,factor=1.0);
+        else:
+            sys.exit('Error in detect_type, should be body or face.');
         xi=int(xi);        yi=int(yi);
         xo=int(xo);        yo=int(yo);
         p1.append((xi,yi,xo,yo));
     
     p2=[];
     for annot in annotation2: 
-        (xi,yi,xo,yo)=oppgd.get_body_bounding_rectangle(annot.data,factor=1.0);
+        if detect_type=='body':
+            (xi,yi,xo,yo)=oppgd.get_body_bounding_rectangle(annot.data,factor=1.0);
+        elif detect_type=='face':
+            (xi,yi,xo,yo)=oppgd.get_face_bounding_rectangle(annot.data,factor=1.0);
+        else:
+            sys.exit('Error in detect_type, should be body or face.');
         xi=int(xi);        yi=int(yi);
         xo=int(xo);        yo=int(yo);
         p2.append((xi,yi,xo,yo));
@@ -121,7 +134,8 @@ def save_images(input_filename,
                 format_filename="count_{COUNT}.png",
                 my_pil_func=lsd.func_default_save,
                 start_count=1,
-                verbose=False):
+                verbose=False,
+                detect_type='body'):
     
     #predictor
     predictor = openpifpaf.Predictor(checkpoint='shufflenetv2k16')#'shufflenetv2k16' 'mobilenetv2'
@@ -174,7 +188,8 @@ def save_images(input_filename,
                 rmse=get_rmse_of_people(pil_current_frame, 
                                         pil_old_frame,
                                         annotation_current,
-                                        annotation_old ); 
+                                        annotation_old,
+                                        detect_type); 
                 #print(rmse,threshold);
                 if rmse>threshold:
                     if my_pil_func(output_dir,new_filename, pil_current_frame,annotation_current):
@@ -229,7 +244,8 @@ if __name__ == "__main__":
                     format_filename=FORMAT_FILENAME,
                     my_pil_func=lsd.func_default_save2,
                     start_count=START_COUNT,
-                    verbose=False);
+                    verbose=False,
+                    detect_type=DETECT_TYPE);
         tg.toc(filename+' elapsed:');
         l=l+1;
         with open(index_file_path, 'w', encoding='utf-8') as index_file:
