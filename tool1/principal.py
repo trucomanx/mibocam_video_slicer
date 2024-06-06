@@ -12,6 +12,7 @@ START_COUNT=1;
 FORMAT_FILENAME="{VNAME}/{FRAME}.png"; ## {COUNT}, {FRAME}, {VNAME}
 DETECT_TYPE="body";
 VERBOSE=False;
+MAX_SIZE=300;
 
 #import torch
 #torch.cuda.empty_cache();
@@ -146,7 +147,8 @@ def save_images(input_filename,
                 my_pil_func=lsd.func_default_save,
                 start_count=1,
                 verbose=False,
-                detect_type='body'):
+                detect_type='body',
+                max_size=None):
     
     #predictor
     predictor = openpifpaf.Predictor(checkpoint='shufflenetv2k16')#'shufflenetv2k16' 'mobilenetv2'
@@ -185,7 +187,7 @@ def save_images(input_filename,
                 old_frame=cv2.cvtColor(image, cv2.COLOR_BGR2RGB);
                 pil_old_frame = Image.fromarray(old_frame);
                 annotation_old    , _, _ = predictor.pil_image(pil_old_frame);
-                if my_pil_func(output_dir,new_filename, pil_old_frame,annotation_old):
+                if my_pil_func(output_dir,new_filename, pil_old_frame,annotation_old,resize=max_size):
                     print('count:',count,'frame:',num_frame,new_filename);
                     first_success=False;
                     count += 1;
@@ -203,7 +205,7 @@ def save_images(input_filename,
                                         detect_type); 
                 #print(rmse,threshold);
                 if rmse>threshold:
-                    if my_pil_func(output_dir,new_filename, pil_current_frame,annotation_current):
+                    if my_pil_func(output_dir,new_filename, pil_current_frame,annotation_current,resize=max_size):
                         pil_old_frame=pil_current_frame.copy();
                         annotation_old = annotation_current.copy();
                         print('count:',count,'frame:',num_frame,'rmse: %6.2f'%rmse,new_filename);
@@ -248,16 +250,19 @@ if __name__ == "__main__":
     while l<L:
         reldir   = couple_files[l][0];
         filename = couple_files[l][1];
-        tg.tic()
-        save_images(input_filename=os.path.join(INPUT_DIR,reldir,filename),
-                    output_dir=os.path.join(OUTPUT_DIR,reldir),
-                    threshold=THRESHOLD, 
-                    format_filename=FORMAT_FILENAME,
-                    my_pil_func=lsd.func_default_save2,
-                    start_count=START_COUNT,
-                    verbose=VERBOSE,
-                    detect_type=DETECT_TYPE);
-        tg.toc(filename+' elapsed:');
+        mp4_path = os.path.join(INPUT_DIR,reldir,filename);
+        if os.path.exists(mp4_path):
+            tg.tic()
+            save_images(input_filename=mp4_path,
+                        output_dir=os.path.join(OUTPUT_DIR,reldir),
+                        threshold=THRESHOLD, 
+                        format_filename=FORMAT_FILENAME,
+                        my_pil_func=lsd.func_default_save2,
+                        start_count=START_COUNT,
+                        verbose=VERBOSE,
+                        detect_type=DETECT_TYPE,
+                        max_size=MAX_SIZE);
+            tg.toc(filename+' elapsed:');
         l=l+1;
         with open(index_file_path, 'w', encoding='utf-8') as index_file:
             json.dump(l, index_file)
