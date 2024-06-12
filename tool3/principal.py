@@ -8,7 +8,7 @@ import sys
 INPUT_DIR='patients-videos';
 OUTPUT_DIR='slices';
 START_COUNT=1;
-FORMAT_FILENAME="{VNAME}/{FRAME}.mp4"; ## {COUNT}, {FRAME}, {VNAME}
+FORMAT_FILENAME="{VNAME}_{INDEX}.mp4"; ## {VNAME}, {INDEX}, 
 VERBOSE=False;
 
 #import torch
@@ -65,9 +65,13 @@ if __name__ == "__main__":
         srt_path = os.path.join(INPUT_DIR,reldir,filename);
         if os.path.exists(srt_path):
             tg.tic()
-            lss.split_video(INPUT_DIR,reldir,filename,OUTPUT_DIR)
+            lss.split_video(INPUT_DIR,reldir,filename,OUTPUT_DIR,FORMAT_FILENAME)
             
             tg.toc(filename+' elapsed:');
         l=l+1;
         with open(index_file_path, 'w', encoding='utf-8') as index_file:
             json.dump(l, index_file)
+
+
+
+

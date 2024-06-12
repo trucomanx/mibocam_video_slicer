@@ -12,7 +12,7 @@ def calcular_duracion(start_time, end_time):
 
     return duration_seconds
 
-def split_video(input_dir,reldir,filename,output_dir):
+def split_video(input_dir,reldir,filename,output_dir,format_outname):
     str_path = os.path.join(input_dir,reldir,filename);
     
     filename_mp4 = os.path.splitext(filename)[0]+'.mp4';
@@ -29,25 +29,46 @@ def split_video(input_dir,reldir,filename,output_dir):
         #print(f"Start: {subtitle.start}")
         #print(f"End: {subtitle.end}")
         #print(f"Text: {subtitle.text}")
-        duration = calcular_duracion(subtitle.start,subtitle.end)
+
         start_time_str = f"{subtitle.start.hours:02}:{subtitle.start.minutes:02}:{subtitle.start.seconds:02}.{subtitle.start.milliseconds:03}"
+        end_time_str = f"{subtitle.end.hours:02}:{subtitle.end.minutes:02}:{subtitle.end.seconds:02}.{subtitle.end.milliseconds:03}"
+
+        duration = calcular_duracion(subtitle.start,subtitle.end)
         duration_str = f"{int(duration // 3600):02}:{int((duration % 3600) // 60):02}:{int(duration % 60):02}.{int((duration % 1) * 1000):03}"
-        #print(duration_str)
+        
+        
         print("\n\n---")
+        print('duration:',duration,duration_str)
 
         mp4_out_dir = os.path.join(output_dir,reldir,subtitle.text); 
         os.makedirs(mp4_out_dir,exist_ok=True);
-        mp4_out_path = os.path.join(mp4_out_dir,str(subtitle.index)+'.mp4');
+        
+        new_filename = str(format_outname);
+        new_filename = new_filename.replace("{INDEX}", str(subtitle.index))
+        new_filename = new_filename.replace("{VNAME}", os.path.splitext(filename)[0])
+        mp4_out_path = os.path.join(mp4_out_dir,new_filename);
 
         # Comando FFmpeg para dividir el video
-        command = [
-            'ffmpeg',
-            '-i', mp4_path,         # Archivo de entrada
-            '-ss',start_time_str,        # Tiempo de inicio
-            '-t', duration_str,           # Duración calculada
-            '-c', 'copy',             # Copiar el video y audio sin reencodear
-            mp4_out_path              # Archivo de salida
-        ]
+        if duration>2:
+            command = [
+                'ffmpeg',
+                '-i', mp4_path,         # Archivo de entrada
+                '-ss',start_time_str,     # Tiempo de inicio
+                '-to',end_time_str,       # Tiempo de inicio
+                #'-t', duration_str,      # Duración calculada
+                '-c','copy',             # Copiar el video y audio sin reencodear
+                mp4_out_path              # Archivo de salida
+            ]
+        else:
+            command = [
+                'ffmpeg',
+                '-i', mp4_path,         # Archivo de entrada
+                '-ss',start_time_str,     # Tiempo de inicio
+                '-to',end_time_str,       # Tiempo de inicio
+                '-c:v','libx264',       # Copiar el video 
+                '-c:a','aac',       # Copiar el video 
+                mp4_out_path              # Archivo de salida
+            ]
         
         for ttt in command:
             print(ttt);
