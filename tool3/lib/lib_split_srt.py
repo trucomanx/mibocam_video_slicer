@@ -12,7 +12,7 @@ def calcular_duracion(start_time, end_time):
 
     return duration_seconds
 
-def split_video(input_dir,reldir,filename,output_dir,format_outname):
+def split_video(input_dir,reldir,filename,output_dir,format_outname,min_time_dec=3):
     str_path = os.path.join(input_dir,reldir,filename);
     
     filename_mp4 = os.path.splitext(filename)[0]+'.mp4';
@@ -49,7 +49,7 @@ def split_video(input_dir,reldir,filename,output_dir,format_outname):
         mp4_out_path = os.path.join(mp4_out_dir,new_filename);
 
         # Comando FFmpeg para dividir el video
-        if duration>2:
+        if duration>min_time_dec:
             command = [
                 'ffmpeg',
                 '-i', mp4_path,         # Archivo de entrada
