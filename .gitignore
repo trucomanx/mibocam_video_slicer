@@ -1,5 +1,10 @@
 /tool1/lib/__pycache__
 /tool1/__pycache__
 /tool2/__pycache__
+/tool3/__pycache__
 /tool1/index.json
 /tool1/couple_files.json
+/tool3/index.json
+/tool3/couple_files.json
+/tool3/lib/__pycache__
+/tool3/srt_files.json
