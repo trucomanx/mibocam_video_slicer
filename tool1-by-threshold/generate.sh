@@ -1,11 +1,16 @@
 #!/bin/bash
 
-InputD='/media/fernando/DATA/Fernando/DATASET/TESE/PATIENT-MIBOCAM/patients-videos'
-#InputD='/home/fernando/Downloads/dataset/files2/'
+InputD='/mnt/8811f502-ae19-4dd8-8371-f1915178f581/Fernando/DATASET/TESE/PATIENT-MIBOCAM/patients-videos'
+
 
 OutputD='/home/fernando/Downloads/output'
-#OutputD='/home/fernando/Downloads/output-test'
+
 
 #export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-python3 principal.py --input-dir $InputD --output-dir $OutputD --threshold 20 --detect-type face --verbose False
+
+python3 principal.py    --input-dir $InputD \
+                        --output-dir $OutputD \
+                        --threshold 20 \
+                        --detect-type face \
+                        --verbose False
 
