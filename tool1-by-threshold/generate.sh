@@ -10,7 +10,7 @@ OutputD='/home/fernando/Downloads/output'
 
 python3 principal.py    --input-dir $InputD \
                         --output-dir $OutputD \
-                        --threshold 20 \
+                        --threshold 30 \
                         --detect-type face \
                         --verbose False
 
