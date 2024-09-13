@@ -42,6 +42,7 @@ for n in range(len(sys.argv)):
 
 
 import json
+from tqdm import tqdm
 from pytictoc import TicToc
 
 import lib.lib_save_data as lsd
@@ -49,35 +50,37 @@ import lib.lib_json_tool as ljt
 import lib.lib_get_files as lgf
 
 from func_extras import save_images
+from func_extras import get_unprocessed_list
 
 
 if __name__ == "__main__":
 
     # Arquivo com uma lista de elementos, cada elemento 'e uma lista de dois string
-    json_file_path=os.path.join(OUTPUT_DIR,'couple_files.json');
-    index_file_path = 'index.json';
+    json_all_files_path = os.path.join(OUTPUT_DIR,'all_couples_files.json');
+    json_processed_path = 'processed_couples_files.json';
     
-    if os.path.exists(json_file_path):
-        couple_files=ljt.load_couples(json_file_path);
-    else:
-        couple_files=lgf.get_all_couple_dir_file(INPUT_DIR,ext='.mp4');
-        ljt.save_couples(couple_files,json_file_path);
+    all_couple_files=lgf.get_all_couple_dir_file(INPUT_DIR,ext='.mp4');
+    ljt.save_couples(all_couple_files,json_all_files_path);
     
-    ## couple_files : [ ["patient5/camera1","filename.mp4"], ..., [...] ]
+    processed_couple_files=[];
+    if os.path.exists(json_processed_path):
+        with open(json_processed_path, 'r', encoding='utf-8') as index_file:
+            processed_couple_files = json.load(index_file) 
+    
+    print("            Number of files:",len(all_couple_files))
+    print("  Number of processed files:",len(processed_couple_files))
+    couple_files=get_unprocessed_list(all_couple_files,processed_couple_files);
     L=len(couple_files);
-    print('L',L)
+    print("Number of unprocessed files:",L)
     
     tg = TicToc();
     l=0;
     
-    if os.path.exists(index_file_path):
-        with open(index_file_path, 'r', encoding='utf-8') as index_file:
-            l = json.load(index_file)
-    
-    while l<L:
+    for l in tqdm(range(L)):
         reldir   = couple_files[l][0];
         filename = couple_files[l][1];
         mp4_path = os.path.join(INPUT_DIR,reldir,filename);
+        
         if os.path.exists(mp4_path):
             tg.tic()
             save_images(input_filename=mp4_path,
@@ -90,7 +93,12 @@ if __name__ == "__main__":
                         detect_type=DETECT_TYPE,
                         max_size=MAX_SIZE);
             tg.toc(filename+' elapsed:');
-        l=l+1;
-        with open(index_file_path, 'w', encoding='utf-8') as index_file:
-            json.dump(l, index_file)
+            processed_couple_files.append(couple_files[l]);
+        else:
+            print("")
+            print("File not found:",mp4_path);
+            print("")
+        
+        ljt.save_couples(processed_couple_files,json_processed_path);
+
 

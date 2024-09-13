@@ -1,7 +1,13 @@
 import json
+import os
 
 def save_couples(couples,json_file_path):
 
+    DIR=os.path.dirname(json_file_path);
+    
+    if DIR!='':
+        os.makedirs(DIR,exist_ok=True);
+    
     couples_list = [list(couple) for couple in couples]
 
     # Salvar a lista de listas no arquivo JSON

@@ -12,14 +12,18 @@ def get_all_files(input_dir,ext='.mp4'):
 
 
 def get_all_couple_dir_file(input_dir,ext='.mp4'):
-    couple_files = []
+    couple_files = [];
+    
     for root, dirs, files in os.walk(input_dir):
         for file in files:
             if file.endswith(ext):
-                filepath=os.path.join(root, file);
-                directory = os.path.dirname(filepath)
-                filename = os.path.basename(filepath)
-                relpath=os.path.relpath(os.path.abspath(directory), input_dir)
-                couple_files.append((relpath,filename))
-    return couple_files
+                filepath = os.path.join(root, file);
+                directory = os.path.dirname(filepath);
+                filename = os.path.basename(filepath);
+                relpath = os.path.relpath(os.path.abspath(directory), input_dir);
+                couple_files.append((relpath,filename));
+                
+    #return couple_files
+    # Ordenar a lista com base no nome do diretório e, em seguida, no nome do arquivo
+    return sorted(couple_files, key=lambda x: (x[0], x[1]))
 

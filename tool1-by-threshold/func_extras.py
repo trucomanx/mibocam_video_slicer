@@ -96,3 +96,16 @@ def save_images(input_filename,
 
     vidcap.release();
     cv2.destroyAllWindows();
+
+################################################################################
+
+def get_unprocessed_list(lista_original, lista_processados):
+    # Converte a lista de processados em um set para buscar mais rapidamente
+    processados_set = set(tuple(elemento) for elemento in lista_processados)
+
+    # Filtra os elementos que não estão na lista de processados
+    nao_processados = [item for item in lista_original if tuple(item) not in processados_set]
+
+    return nao_processados
+
+
