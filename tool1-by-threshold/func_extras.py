@@ -6,6 +6,7 @@ import openpifpaf
 import lib.lib_save_data as lsd
 from PIL import Image
 from pytictoc import TicToc
+import sys
 
 from func_people import get_annotation_from_pil
 from func_people import get_rmse_of_people
@@ -91,7 +92,9 @@ def save_images(input_filename,
         elif num_frame>=tot_num_frames:
             break;
         else:
-            sys.exit('Error reading the file',input_filename);
+            print('tot_num_frames:',tot_num_frames)
+            print('num_frame:',num_frame)
+            sys.exit('Error reading the file'+input_filename);
     print('last count:',count);
 
     vidcap.release();
